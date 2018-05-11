@@ -119,7 +119,7 @@ namespace WorkshopDemoCorePart1
 
         }
 
-        public async Task SendEncryptedText()
+        public async Task CheckEncryption()
         {
             try
             {
@@ -169,6 +169,8 @@ namespace WorkshopDemoCorePart1
             await blob.UploadTextAsync("test");
 
             string sasBlobToken = blob.GetSharedAccessSignature(policy);
+
+            Console.WriteLine($"SasToken: {sasBlobToken}");
 
             permissions.SharedAccessPolicies.Add(policyName, policy);
 

@@ -9,19 +9,19 @@ namespace WorkshopDemoCorePart1
         {
             var blobStorageDemo = new BlobStorageDemo();
 
-            //blobStorageDemo.StoreAndLoadBlobInAzure().GetAwaiter().GetResult();
+            blobStorageDemo.StoreAndLoadBlobInAzure().GetAwaiter().GetResult();
 
 
             //blobStorageDemo.SendFileWithProgress().GetAwaiter().GetResult();
 
-            //blobStorageDemo.SendEncryptedText().GetAwaiter().GetResult();
+            //blobStorageDemo.CheckEncryption().GetAwaiter().GetResult();
 
 
-            blobStorageDemo.CreateSASPolicy("workshopPolicy").GetAwaiter().GetResult();
+            //blobStorageDemo.CreateSASPolicy("workshopPolicy").GetAwaiter().GetResult();
 
-            var blobSasDemo = new BlobStorageSAS();
+            //var blobSasDemo = new BlobStorageSAS();
 
-            blobSasDemo.TestSasAccessBlobs("sss").GetAwaiter().GetResult();
+            //blobSasDemo.TestSasAccessBlobs("sss").GetAwaiter().GetResult();
 
             WaitForKey();
         }
