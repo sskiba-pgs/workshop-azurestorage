@@ -118,6 +118,89 @@ namespace WorkshopDemoCorePart1
             }
 
         }
+        public async Task OpenBlobUsingSAS()
+        {
+            try
+            {
+                await OpenContainerAsync($"blobsdemoSAS{DateTime.Today:yymmdd}", "sas-blob", true);
+
+                CloudBlockBlob blob = CloudBlobContainer.GetBlockBlobReference("CreatedBySas.txt");
+                
+                await blob.UploadTextAsync("File created using SAS Uri");                
+
+                CloudBlockBlob testBlob = CloudBlobContainer.GetBlockBlobReference(blob.Name);
+
+                var fileContent = await testBlob.DownloadTextAsync();
+
+                Console.WriteLine("File text: {0}",fileContent);                
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Press Y to delete Azure container.");
+                var key = Console.ReadKey();
+                Console.WriteLine();
+
+                if (key.KeyChar.ToString().ToUpper() == "Y")
+                {
+                    await DeleteContainerAsync();
+                }
+            }
+
+        }
+
+        public async Task CreateSASUriForBlob()
+        {
+            try
+            {
+                await OpenContainerAsync($"blobsdemoSAS{DateTime.Today:yymmdd}");
+
+
+                Console.WriteLine("Creating file in storage container");
+
+                CloudBlockBlob blob = CloudBlobContainer.GetBlockBlobReference("FileWithSASUri.txt");
+
+                await blob.UploadTextAsync("File with SAS Uri generated from .NET");
+                                
+                CloudBlockBlob testBlob = CloudBlobContainer.GetBlockBlobReference(blob.Name);
+
+                var sasUri = GetBlobSasUri(testBlob);
+
+                Console.WriteLine("Blob SAS Uri: {0}", sasUri);
+                Console.WriteLine("Hit any key...");
+
+                Console.WriteLine();
+
+                Console.ReadKey();
+
+                Console.WriteLine("Opening blob using SAS Uri");
+
+                CloudBlockBlob blobThruSas = new CloudBlockBlob(new Uri(sasUri));
+
+                Console.WriteLine("File text: {0}", await testBlob.DownloadTextAsync());
+
+
+            }
+            finally
+            {
+                Console.WriteLine("Press Y to delete Azure container.");
+                var key = Console.ReadKey();
+                Console.WriteLine();
+
+                if (key.KeyChar.ToString().ToUpper() == "Y")
+                {
+                    await DeleteContainerAsync();
+                }
+            }
+
+        }
+
+
+
+
 
         public async Task CheckEncryption()
         {
@@ -175,6 +258,45 @@ namespace WorkshopDemoCorePart1
             permissions.SharedAccessPolicies.Add(policyName, policy);
 
             await CloudBlobContainer.SetPermissionsAsync(permissions);
+        }
+
+
+        private string GetBlobSasUri(CloudBlob blob, string policyName = null)
+        {
+            string sasBlobToken;
+            
+            if (policyName == null)
+            {
+                // Create a new access policy and define its constraints.
+                // Note that the SharedAccessBlobPolicy class is used both to define the parameters of an ad-hoc SAS, and
+                // to construct a shared access policy that is saved to the container's shared access policies.
+                SharedAccessBlobPolicy adHocSAS = new SharedAccessBlobPolicy()
+                {
+                    // When the start time for the SAS is omitted, the start time is assumed to be the time when the storage service receives the request.
+                    // Omitting the start time for a SAS that is effective immediately helps to avoid clock skew.
+                    SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
+                    SharedAccessStartTime = DateTime.UtcNow.AddHours(-1),
+                    Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.Create
+                };
+
+                // Generate the shared access signature on the blob, setting the constraints directly on the signature.
+                sasBlobToken = blob.GetSharedAccessSignature(adHocSAS);
+
+                Console.WriteLine("SAS for blob (ad hoc): {0}", sasBlobToken);
+                Console.WriteLine();
+            }
+            else
+            {
+                // Generate the shared access signature on the blob. In this case, all of the constraints for the
+                // shared access signature are specified on the container's stored access policy.
+                sasBlobToken = blob.GetSharedAccessSignature(null, policyName);
+
+                Console.WriteLine("SAS for blob (stored access policy): {0}", sasBlobToken);
+                Console.WriteLine();
+            }
+
+            // Return the URI string for the container, including the SAS token.
+            return blob.Uri + sasBlobToken;
         }
 
     }

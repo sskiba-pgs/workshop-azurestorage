@@ -19,17 +19,9 @@ namespace WorkshopDemoCorePart1
 
             //blobStorageDemo.CreateSASPolicy("workshopPolicy").GetAwaiter().GetResult();
 
-            //var blobSasDemo = new BlobStorageSAS();
+            //blobStorageDemo.OpenBlobUsingSAS().GetAwaiter().GetResult();
 
-            //blobSasDemo.TestSasAccessBlobs("sss").GetAwaiter().GetResult();
-
-            WaitForKey();
-        }
-
-        internal static void WaitForKey()
-        {
-            Console.WriteLine("Waiting for key...");
-            Console.ReadKey();
-        }
+            //blobStorageDemo.CreateSASUriForBlob().GetAwaiter().GetResult();            
+        }     
     }
 }

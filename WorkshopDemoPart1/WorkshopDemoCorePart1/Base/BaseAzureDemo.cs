@@ -7,6 +7,7 @@ namespace WorkshopDemoCorePart1
 {
     internal class BaseAzureDemo
     {
+        protected IConfigurationRoot Config { get; private set; }
         protected string StorageConnectionString { get; set; }
         protected CloudStorageAccount StorageAccount => _storageAccount;
 
@@ -16,9 +17,9 @@ namespace WorkshopDemoCorePart1
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json");
 
-            var configuration = builder.Build();
+            Config =  builder.Build();
 
-            StorageConnectionString = configuration["StorageConnectionString"];
+            StorageConnectionString = Config["StorageConnectionString"];
 
             if (String.IsNullOrWhiteSpace(StorageConnectionString))
             {
